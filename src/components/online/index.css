@@ -1,0 +1,42 @@
+.online {
+    width: 260px;
+    height: 100%;
+    display: flex;
+    position: relative;
+    border-left: solid 2px var(--grey-accent);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+}
+.online h1 {
+    margin: 8px 0;
+    padding: 0;
+    font-size: 24px;
+}
+.list {
+    gap: 8px;
+    padding: 0 0 16px 0;
+    display: flex;
+    flex-direction: column;
+}
+.status {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 4px;
+    gap: 8px;
+}
+.status img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+.status label {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: auto;
+}

@@ -1,0 +1,29 @@
+.wrapper {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.box {
+    width: 350px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+.user-image-preview {
+    width: 160px;
+    height: 160px;
+    padding: 28px;
+    border-radius: 100%;
+    background: white;
+    display: block;
+    margin: 24px auto;
+}
+.warning {
+    color: red;
+    font-size: 14px;
+}

@@ -1,0 +1,42 @@
+{
+  "hosting": {
+    "public": "build",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "cleanUrls": true,
+    "trailingSlash": false,
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          },
+          {
+            "key": "Content-Security-Policy",
+            "value": "https://apis.google.com/ https://www.google.com/ https://www.gstatic.com/ https://www.googletagmanager.com/  https://upload.wikimedia.org/ https://storage.googleapis.com/upfriends.appspot.com/ data: blob:"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(js|css|png|webp|webmanifest)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000"
+          }
+        ]
+      }
+    ]
+  }
+}

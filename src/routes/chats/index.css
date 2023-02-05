@@ -1,0 +1,15 @@
+.wrapper {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100vw;
+    height: 100vh;
+}
+.app {
+    background: var(--white);
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    height: 100%;
+}

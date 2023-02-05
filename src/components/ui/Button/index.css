@@ -1,0 +1,20 @@
+.button {
+    border: solid 0px transparent;
+    padding: 16px 56px;
+    color: var(--white);
+    font-weight: 400;
+    background: var(--purple);
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 4px 0;
+    transition: .4s;
+}
+.button:hover {
+    filter: brightness(1.2);
+}
+.button:disabled, .button:disabled:hover {
+    filter: none;
+    background: var(--purple-dimmer);
+    cursor: default;
+}

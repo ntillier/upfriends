@@ -1,0 +1,188 @@
+.box {
+    background: var(--grey-dimmest);
+    width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.room {
+    padding: 16px;
+    gap: 16px;
+    display: flex;
+    flex-direction: row;
+    background: var(--white);
+}
+.room img {
+    width: 38px;
+    height: 38px;
+    border-radius: 100px;
+    user-select: none;
+}
+.infos {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+.infos label {
+    font-weight: 600;
+    font-size: 16px;
+}
+.infos span {
+    font-size: 14px;
+    color: var(--grey-dimmer);
+    white-space: nowrap;
+    width: 80%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.messages {
+    overflow: hidden auto;
+    padding: 16px 0;
+    display: flex;
+    flex-direction: column;
+    flex: 1
+}
+.message {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    padding: 4px 16px;
+    cursor: default;
+}
+.message:hover {
+    background: var(--grey-accent);
+}
+.message > img {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: white;
+    margin-top: 8px;
+    user-select: none;
+}
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: auto;
+    overflow: hidden;
+    flex: 1 1 0%;
+}
+.label {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    margin-top: 8px;
+    align-items: center;
+    user-select: none;
+}
+.bubble, .bubble * {
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+}
+.datePlaceholder {
+    width: 38px;
+    padding-top: 4px;
+    position: relative;
+    font-size: 10px;
+    text-align: center;
+    color: var(--grey-dimmer);
+    visibility: hidden;
+    user-select: none;
+}
+.message:hover .datePlaceholder {
+    visibility: visible;
+}
+.label label {
+    font-weight: 600;
+    font-size: 16px;
+}
+.label span {
+    font-size: 12px;
+    color: var(--grey-dimmer);
+}
+.actions {
+    user-select: none;
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    right: 4px;
+    border-radius: 4px;
+    padding: 0 4px;
+    background: var(--grey-accent);
+    border: solid 1px var(--grey-dimmer);
+    transform: translateY(-80%);
+    visibility: hidden;
+    transition: box-shadow .2s;
+}
+.actions > svg {
+    padding: 6px;
+    cursor: pointer;
+    background: var(--grey-accent);
+    filter: brightness(1);
+    transition: filter 175ms;
+}
+.actions:hover {
+    box-shadow: 0 4px 0.4em var(--grey-dimmer);
+}
+.message:hover .actions {
+    visibility: visible;
+}
+.message:hover span.inline-code, .message:hover div.block-code {
+    background: var(--grey-dimmest);
+    background: red;
+}
+.indicator {
+    user-select: none;
+    position: relative;
+    color: var(--grey);
+    text-align: center;
+    padding: 16px 0;
+}
+.indicator::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: var(--grey-dimmer);
+    top: calc(50% - 0.5px);
+}
+.indicator::before {
+    content: var(--text);
+    background: var(--grey-dimmest);
+    position: relative;
+    padding: 8px 16px;
+    z-index: 10;
+    font-size: 12px;
+    font-weight: 600;
+}
+.form {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: auto;
+    border-top: solid 2px var(--grey-accent);
+}
+.form textarea {
+    outline: none;
+    border: none;
+    resize: none;
+    font-size: 16px;
+    padding: 16px;
+    flex: 1;
+    color: var(--grey);
+    font-family: 'Nunito', sans-serif;
+}
+.form textarea::placeholder {
+    color: var(--grey-dimmer);
+}
+.warning {
+    font-size: 16px;
+    color: var(--grey);
+    display: block;
+    text-align: center;
+    margin: auto auto;
+}

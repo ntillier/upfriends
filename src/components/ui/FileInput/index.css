@@ -1,0 +1,19 @@
+.file-input {
+    padding: 16px;
+    width: 100%;
+    margin: 4px 0;
+    border-radius: 4px;
+    background: var(--purple);
+    cursor: pointer;
+    color: var(--white);
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 16px;
+}
+.file-input input {
+    display: none;
+}

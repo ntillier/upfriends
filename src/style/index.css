@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito&display=swap');
+
+:root {
+  --white: #FFFFFF;
+
+  --grey: #353535;
+  --grey-dimmer: #CECECE;
+  --grey-dimmest: #F9F9F9;
+  --grey-accent: #F4F4F4;
+
+  --bubble-background: #EFEFEF;
+
+  --purple: #836edd;
+  --purple-dimmer: #e6e4ff;
+  --purple-dimmest: #f1edff;
+
+  --red: #FF0000;
+  --blue: #0080FF;
+  --green: #80d475;
+  --yellow: #e9d57c;
+  --brown: #884b0e;
+
+
+  --light-blue: #e2f1ff;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid rgba(0, 0, 0, 0);
+  background-clip: padding-box;
+  border-radius: 9999px;
+  background-color: var(--purple-dimmer);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  filter: brightness(0.9);
+}
+
+body {
+  margin: 0;
+  font-family: 'Nunito', sans-serif;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: var(--blue);
+  text-decoration: none;
+}
+
+.emoji {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.inline-code {
+  background: var(--grey-accent);
+  padding: 2px 4px;
+  border-radius: 2px;
+  margin: 2px 0;
+  display: inline-block;
+  font-family: monospace;
+  font-size: 14px;
+}
+
+.block-code {
+  background: var(--grey-accent);
+  padding: 2px 4px;
+  border-radius: 2px;
+  margin: 2px 0;
+  display: block;
+  font-family: monospace;
+}
+
+@keyframes loading {
+  100% {
+    transform: rotate(360deg);
+  }
+}
