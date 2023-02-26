@@ -45,10 +45,13 @@ export default function Onboarding () {
         signOut(getAuth());
     }
 
-    function submit () {
+    async function submit () {
         setStep(4);
         const auth = getAuth();
         const storage = getStorage();
+
+        await auth.currentUser.getIdToken(true);
+
         const imageRef= ref(storage, `/profile_images/${auth.currentUser.uid}`);
 
         uploadBytes(imageRef, values.current.image)
