@@ -1,0 +1,9 @@
+.role {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 50px;
+    background: var(--yellow);
+    color: white;
+    cursor: default;
+    user-select: none;
+}

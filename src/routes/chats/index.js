@@ -2,13 +2,13 @@
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { collection, doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
 import { useEffect, useRef, useState } from "preact/hooks";
-import useRedirect from "../../hooks/useRedirect";
+import useRedirect from "/hooks/useRedirect";
 import styles from './index.css';
-import { Loading } from "../../components/ui";
-import ChatList from "../../components/chats";
-import ChatRoom from "../../components/chat";
+import { Loading } from "/components/ui";
+import ChatList from "/components/chats";
+import ChatRoom from "/components/chat";
 import { getDatabase, onDisconnect, onValue, ref, set } from "firebase/database";
-import OnlineUsers from "../../components/online";
+import OnlineUsers from "/components/online";
 
 export default function Chats({ channel }) {
     const db = useRef({});
@@ -48,13 +48,11 @@ export default function Chats({ channel }) {
                 const userStatusDatabaseRef = ref(db.current.database, `/status/${u.uid}`);
 
                 const isOfflineForDatabase = {
-                    state: 'offline',
-                    // last_changed: serverTimestamp,
+                    state: 'offline'
                 };
 
                 const isOnlineForDatabase = {
-                    state: 'online',
-                    // last_changed: serverTimestamp,
+                    state: 'online'
                 };
 
                 onValue(
@@ -63,7 +61,7 @@ export default function Chats({ channel }) {
                         if (snapshot.val() == false) {
                             return;
                         }
-                        
+
                         onDisconnect(userStatusDatabaseRef)
                             .set(isOfflineForDatabase)
                             .then(() => {

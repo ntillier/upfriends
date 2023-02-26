@@ -27,3 +27,7 @@
     color: red;
     font-size: 14px;
 }
+.box a {
+    display: block;
+    text-align: center;
+}

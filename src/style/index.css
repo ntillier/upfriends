@@ -82,6 +82,10 @@ a {
   font-family: monospace;
 }
 
+.image {
+  border-radius: 4px;
+}
+
 @keyframes loading {
   100% {
     transform: rotate(360deg);

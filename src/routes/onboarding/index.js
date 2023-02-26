@@ -1,6 +1,6 @@
 import { Button, FileInput, Input } from '../../components/ui';
 import { useRef, useState } from 'preact/hooks';
-import { getAuth, sendEmailVerification, updateProfile } from 'firebase/auth';
+import { getAuth, sendEmailVerification, signOut, updateProfile } from 'firebase/auth';
 import { route } from 'preact-router';
 import { getStorage, ref, uploadBytes } from 'firebase/storage';
 import styles from './index.css';
@@ -41,6 +41,10 @@ export default function Onboarding () {
         }
     }
 
+    function logout () {
+        signOut(getAuth());
+    }
+
     function submit () {
         setStep(4);
         const auth = getAuth();
@@ -73,11 +77,17 @@ export default function Onboarding () {
             <div className={styles.box}>
                 {
                     step === 1 &&
-                        <Button onClick={sendEmail}>Send verification email</Button>
+                        <>
+                            <Button onClick={sendEmail}>Send verification email</Button>
+                            <a onClick={logout}>Logout</a>
+                        </>
                 }
                 {
                     step === 2 &&
-                        <Button disabled={true}>Email sent.</Button>
+                        <>
+                            <Button disabled={true}>Email sent.</Button>
+                            <a onClick={logout}>Logout</a>
+                        </>
                 }
                 {
                     step === 3 &&
@@ -87,6 +97,7 @@ export default function Onboarding () {
                             <Input onInput={changeUsername} placeholder="Username" />
                             <FileInput onChange={setImage} />
                             <Button disabled={valid.filter((i) => i !== true).length !== 0} onClick={submit}>Continue</Button>
+                            <a onClick={logout}>Logout</a>
                             <span className={styles.warning} style={{ display: 'block', textAlign: 'center' }}>{ error }</span>
                         </>
                 }

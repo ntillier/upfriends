@@ -1,6 +1,6 @@
 {
-	"name": "my-project",
-	"short_name": "my-project",
+	"name": "UPFriends",
+	"short_name": "UPFriends",
 	"start_url": "/",
 	"display": "standalone",
 	"orientation": "portrait",

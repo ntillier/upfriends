@@ -4,5 +4,6 @@ import Input from './Input/Input';
 import FileInput from './FileInput';
 import Loading from './Loading';
 import Editor from './Editor';
+import Role from './Role';
 
-export { Message, Button, Input, FileInput, Loading, Editor };
+export { Message, Button, Input, FileInput, Loading, Editor, Role };

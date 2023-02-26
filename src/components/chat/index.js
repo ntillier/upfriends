@@ -2,78 +2,26 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useRef, useState } from "preact/hooks";
 import styles from './index.css';
-import { addDoc, collection, deleteDoc, doc, getDoc, getFirestore, limitToLast, onSnapshot, orderBy, query, updateDoc, where } from "firebase/firestore";
-import { completeQuery } from "../../util/firebase";
-import { getTime } from "../../util/time";
+import { addDoc, collection, doc, getDoc, getFirestore, limitToLast, onSnapshot, orderBy, query, serverTimestamp,  updateDoc, where } from "firebase/firestore";
+import { completeQuery } from "/util/firebase";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { parseAndRender } from "../../util/parse";
-import { Loading } from "../../components/ui";
-
+import { parseAndRender } from "/util/parse";
+import { Loading, Message } from "/components/ui";
 
 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-function ActionBox({ onEdit, onDelete }) {
-    return (
-        <div className={styles.actions}>
-            <svg onClick={onEdit} xmlns="http://www.w3.org/2000/svg" height="32px" width="32px" viewBox="0 0 24 24" fill="var(--grey)">
-                <path d="M0 0h24v24H0V0z" fill="none" /><path fill="var(--grey)" d="M3 17.46v3.04c0 .28.22.5.5.5h3.04c.13 0 .26-.05.35-.15L17.81 9.94l-3.75-3.75L3.15 17.1c-.1.1-.15.22-.15.36zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-            </svg>
-            <svg onClick={onDelete} xmlns="http://www.w3.org/2000/svg" height="32px" viewBox="0 0 24 24" width="32px" fill="var(--grey)">
-                <path d="M0 0h24v24H0V0z" fill="none" /><path fill="var(--grey)" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v10zM18 4h-2.5l-.71-.71c-.18-.18-.44-.29-.7-.29H9.91c-.26 0-.52.11-.7.29L8.5 4H6c-.55 0-1 .45-1 1s.45 1 1 1h12c.55 0 1-.45 1-1s-.45-1-1-1z" />
-            </svg>
-        </div>
-    );
-}
-
-function Message({ message, me, isSame }) {
-
-    function deleteMessage () {
-        if (confirm('Do you want to delete this message?')) {
-            deleteDoc(
-                doc(getFirestore(), 'messages', message.id)
-            );
-        }
-    }
-
-    if (isSame) {
-        return (
-            <div className={styles.message}>
-                {
-                    me && <ActionBox onDelete={deleteMessage} />
-                }
-                <div className={styles.datePlaceholder}>{ getTime(message.date.toDate()) }</div>
-                <div className={styles.content}>
-                    <div className={styles.bubble} dangerouslySetInnerHTML={{ __html: message.content }} />
-                </div>
-            </div>
-        );
-    }
-    return (
-        <div className={styles.message}>
-            {
-                me && <ActionBox onDelete={deleteMessage} />
-            }
-            <img src={message.author?.image} />
-            <div className={styles.content}>
-                <div className={styles.label}>
-                    <label>{message.author?.name}</label>
-                    <span>{getTime(message.date.toDate())}</span>
-                </div>
-                <div className={styles.bubble} dangerouslySetInnerHTML={{ __html: message.content }} />
-            </div>
-        </div>
-    );
-}
-
 export default function ChatRoom({ channel }) {
     const [room, setRoom] = useState({});
     const [messages, setMessages] = useState([]);
-    const [exists, setExists] = useState(true);
+    const [auth, setAuth] = useState({});
     const [user, setUser] = useState({});
+
     const [disabled, setDisabled] = useState(true);
     const [loading, setLoading] = useState(true);
-    const config = useRef({ listener: null, count: Math.round(window.innerHeight / 20), db: null, bottom: true, end: false, loading: true, diff: 0 });
+    const [reply, setReply] = useState(null);
+
+    const config = useRef({ listener: null, count: Math.round(window.innerHeight / 40), db: null, bottom: true, end: false, loading: true, diff: 0 });
     const input = useRef();
     const container = useRef();
     const scroll = useRef();
@@ -81,10 +29,7 @@ export default function ChatRoom({ channel }) {
     const now = [Date.now(), new Date().getDate()];
     let date = new Date(), lastDate = new Date(), isSame = false;
 
-    function scrollToBottom() {
-        scroll.current?.scrollIntoView();
-    }
-
+    const scrollToBottom = () => scroll.current?.scrollIntoView();
     function onScroll() {
         if (config.current.loading) return;
 
@@ -93,10 +38,6 @@ export default function ChatRoom({ channel }) {
         } else {
             config.current.bottom = false;
         }
-
-        if (container.current.scrollTop < 20 && config.current.end === false) {
-            loadMore();
-        }
     }
 
     function loadMore() {
@@ -104,7 +45,7 @@ export default function ChatRoom({ channel }) {
         config.current.loading = true;
         config.current.count += 15;
         config.current.diff = container.current.scrollHeight - Math.floor(container.current.scrollTop) - container.current.clientHeight;
-        
+
         if (config.current.listener) {
             config.current.listener();
         }
@@ -116,12 +57,21 @@ export default function ChatRoom({ channel }) {
         config.current.listener = onSnapshot(
             query(collection(config.current.db, "messages"), where("channel", "==", channel), orderBy('date', 'asc'), limitToLast(config.current.count)),
             async (querySnapshot) => {
-                completeQuery(config.current.db, querySnapshot, [['author', 'users']])
-                    .then((arr) => {
+                completeQuery(config.current.db, querySnapshot, [['author', 'users'], ['reply', 'messages']])
+                    .then(async (arr) => {
                         if (arr.length < config.current.count) {
                             config.current.end = true;
                         }
                         for (let i in arr) {
+                            if (arr[i].reply) {
+                                let id = arr[i].reply.author;
+                                arr[i].reply.author = (await getDoc(doc(config.current.db, 'users', id))).data() || {};
+                                arr[i].reply.author.id = id;
+                                if (arr[i].reply.content) {
+                                    arr[i].reply.content = parseAndRender(arr[i].reply.content);
+                                }
+                            }
+                            arr[i].original = arr[i].content;
                             arr[i].content = parseAndRender(arr[i].content);
                         }
                         setLoading(false);
@@ -131,7 +81,7 @@ export default function ChatRoom({ channel }) {
         );
     }
 
-    function waitImages () {
+    function waitImages() {
         const promises = [];
 
         Array.from(container.current.getElementsByClassName('image'))
@@ -144,16 +94,16 @@ export default function ChatRoom({ channel }) {
         return Promise.all(promises);
     }
 
-    async function waitForImages () {
+    async function waitForImages() {
         await waitImages();
-
-        container.current.style.scrollBehavior = "smooth";
 
         if (config.current.bottom) {
             scrollToBottom();
         } else {
             container.current.scrollTop = container.current.scrollHeight - container.current.clientHeight - config.current.diff;
         }
+
+        container.current.style.scrollBehavior = "smooth";
 
         config.current.loading = false;
     }
@@ -171,15 +121,14 @@ export default function ChatRoom({ channel }) {
         if (!config.current.db) {
             config.current.db = getFirestore();
         }
+
         config.current.bottom = true;
+        config.current.end = false;
+        config.current.count = Math.round(window.innerHeight / 40);
+        config.current.diff = 0;
 
-        if (config.current.listener) {
-            config.current.listener();
-        }
-
-        onAuthStateChanged(getAuth(), (u) => {
-            setUser(u);
-        });
+        setLoading(true);
+        setMessages([]);
 
         if (channel.length === 0) {
             return;
@@ -187,13 +136,12 @@ export default function ChatRoom({ channel }) {
 
         getDoc(doc(config.current.db, 'channels', channel))
             .then((ref) => {
-                setExists(ref.exists());
+                setRoom(ref.exists() || null);
                 if (ref.exists()) {
                     document.title = `${ref.data().title} | UPFriends`
                     setDisabled(false);
                     completeQuery(config.current.db, { docs: new Array(ref) }, [['author', 'users']])
                         .then((arr) => setRoom(arr[0]));
-
                     loadMore();
                 } else {
                     setLoading(false);
@@ -206,27 +154,59 @@ export default function ChatRoom({ channel }) {
         container.current.addEventListener('scroll', onScroll, { passive: true });
     }, [container]);
 
-    function watchForKey(e) {
-        if (e.key === 'Enter' && !e.shiftKey && user && input.current.value.length > 1) {
-            e.preventDefault();
-            addDoc(collection(config.current.db, 'messages'), {
-                author: user.uid,
-                channel,
-                content: input.current.value.trim(),
-                edited: false,
-                date: new Date()
-            }).then((i) => {
-                updateDoc(
-                    doc(config.current.db, 'channels', channel),
-                    {
-                        last: i.id
-                    }
-                );
-            }).catch(console.log);
+    useEffect(() => {
+        if (!room || !user) return;
+        setRoom((r) => Object.assign(r, { canSend: r.restricted ? user.roles.includes(r.min_role) : true }));
+    }, [room, user])
 
-            input.current.value = '';
-            input.current.rows = 1;
-            input.current.focus();
+    useEffect(() => {
+        onAuthStateChanged(getAuth(), (u) => {
+            setAuth(u);
+            getDoc(
+                doc(config.current.db, 'users', u.uid)
+            ).then((data) => {
+                if (data.exists()) {
+                    setUser(data.data());
+                }
+            });
+        });
+    }, []);
+
+    function sendMessage() {
+        addDoc(collection(config.current.db, 'messages'), {
+            author: auth.uid,
+            channel,
+            content: input.current.value.trim(),
+            edited: false,
+            date: serverTimestamp(),
+            ...(reply ? { reply: reply.id } : {})
+        }).then((i) => {
+            updateDoc(
+                doc(config.current.db, 'channels', channel),
+                {
+                    last: i.id
+                }
+            );
+            setReply(null);
+        }).catch(console.log);
+
+        input.current.value = '';
+        input.current.focus();
+    }
+
+    function watchForKey(e) {
+        if (e.key === 'Enter' && !e.shiftKey && auth && input.current.value.length > 1) {
+            e.preventDefault();
+            sendMessage();
+        }
+    }
+
+    function updateInputHeight() {
+        input.current.style.height = 'auto';
+        input.current.style.height = `${input.current.scrollHeight}px`;
+
+        if (config.current.bottom) {
+            scrollToBottom();
         }
     }
 
@@ -238,7 +218,7 @@ export default function ChatRoom({ channel }) {
         );
     }
 
-    if (!exists) {
+    if (room === null) {
         return (
             <div className={styles.box}>
                 <h1 className={styles.warning}>The channel doesn't exists.</h1>
@@ -256,35 +236,69 @@ export default function ChatRoom({ channel }) {
                 </div>
             </div>
             <div ref={container} className={styles.messages}>
-                {
-                    loading && <Loading />
-                }
+                <button
+                    className={styles.more}onClick={loadMore}
+                    style={{ display: !loading && !config.current.end ? 'block' : 'none' }}
+                    >More</button>
+                <Loading display={loading} />
                 {
                     messages.map((i, j) => {
+                        if (!i.date) return;
                         date = i.date.toDate();
-                        isSame = j === 0 ? false : messages[j - 1].author.id === i.author.id && i.date.seconds - messages[j-1].date.seconds  < 900;
+                        isSame = j === 0 ? false : messages[j - 1].author.id === i.author.id && i.date.seconds - messages[j - 1].date.seconds < 900;
                         if (date.toLocaleDateString() !== lastDate) {
                             lastDate = date.toLocaleDateString();
                             isSame = false;
                             return (
                                 <div key={i.id}>
                                     <div className={styles.indicator} style={`--text:'${now[0] - date.valueOf() < 604800000 ? (date.getDate() === now[1] ? 'Today' : days[date.getDay()]) : `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`}'`} />
-                                    <Message isSame={isSame} key={i.id} message={i} me={user.uid === i.author.id} />
+                                    <Message me={auth} setReply={setReply} isSame={isSame} key={i.id} message={i} />
                                 </div>
                             );
                         }
-                        return <Message key={i.id} isSame={isSame} message={i} me={user.uid === i.author.id} />;
+                        return <Message me={auth} setReply={setReply} key={i.id} isSame={isSame} message={i} />;
                     })
                 }
 
                 <div ref={scroll} />
             </div>
-            <div className={styles.form}>
-                <textarea maxLength="400" disabled={disabled} rows="1" ref={input} onKeyDown={watchForKey} placeholder="Write a message..." className={styles.input} />
-                <svg xmlns="http://www.w3.org/2000/svg" height="32px" viewBox="0 0 24 24" width="32px" fill="var(--grey)">
-                    <path d="M0 0h24v24H0V0z" fill="none" /><path fill="var(--grey)" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v10zM18 4h-2.5l-.71-.71c-.18-.18-.44-.29-.7-.29H9.91c-.26 0-.52.11-.7.29L8.5 4H6c-.55 0-1 .45-1 1s.45 1 1 1h12c.55 0 1-.45 1-1s-.45-1-1-1z" />
+            {
+                reply &&
+                    <div className={styles.reply}>
+                        <span>Replying to <label>{ reply.author.name }</label></span>
+                        <svg onClick={() => setReply(null)} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" height="16" width="16">
+                            <path d="M24 26.1 13.5 36.6q-.45.45-1.05.45-.6 0-1.05-.45-.45-.45-.45-1.05 0-.6.45-1.05L21.9 24 11.4 13.5q-.45-.45-.45-1.05 0-.6.45-1.05.45-.45 1.05-.45.6 0 1.05.45L24 21.9l10.5-10.5q.45-.45 1.05-.45.6 0 1.05.45.45.45.45 1.05 0 .6-.45 1.05L26.1 24l10.5 10.5q.45.45.45 1.05 0 .6-.45 1.05-.45.45-1.05.45-.6 0-1.05-.45Z" />
+                        </svg>
+                    </div>
+            }
+            <div tabIndex={-1} onFocus={() => input.current.focus()} className={styles.form}>
+                <textarea
+                    spellCheck="false"
+                    rows="1"
+                    maxLength="400"
+                    disabled={ room.canSend ? disabled : true }
+                    ref={input}
+                    onKeyDown={watchForKey}
+                    onInput={updateInputHeight}
+                    placeholder={ room.canSend ? "Write a message..." : 'You can\'t send a message in this channel' }
+                    className={styles.input} />
+                <svg
+                    tabIndex={-1}
+                    onClick={sendMessage}
+                    xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
+                    <path d="M0 0h24v24H0V0z" fill="none" /><path d="M3.4 20.4l17.45-7.48c.81-.35.81-1.49 0-1.84L3.4 3.6c-.66-.29-1.39.2-1.39.91L2 9.12c0 .5.37.93.87.99L17 12 2.87 13.88c-.5.07-.87.5-.87 1l.01 4.61c0 .71.73 1.2 1.39.91z" />
                 </svg>
             </div>
         </div>
     );
 }
+
+/*
+<VirtualList
+    data={['a', 'b', 'c']}
+    renderRow={ row => <div>{row}</div> }
+    rowHeight={22}
+    overscanCount={10}
+    sync
+/>
+*/

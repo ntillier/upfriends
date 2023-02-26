@@ -76,9 +76,9 @@ const patterns = [
         }
     },
     {
-        reg: /((?:http|ftp|https)(?:[^ \n]+)\.(?:gif|jpg|jpeg|tiff|png))/,
+        reg: /((?:http|ftp|https)(?:[^ \n]+)\.(?:gif|jpg|jpeg|tiff|png))/i,
         hasNestedParsing: false,
-        string: `<img width="100%" style="max-width:200px;max-height:200px;" src="$" onerror="var a=document.createElement('a');a.href='$';a.textContent='$';this.outerHTML=a.outerHTML;this.xfine=true;if(this.xload){this.xload();}" />`,
+        string: `<img width="100%" class="image" style="max-width:200px;max-height:200px;" src="$" onload="this.xfine=true;if(this.xload){this.xload();}" onerror="var a=document.createElement('a');a.href='$';a.textContent='$';this.outerHTML=a.outerHTML;this.xfine=true;if(this.xload){this.xload();}" />`,
     },
     {
         reg: /((?:http|ftp|https)(?:.*?))(?:\s|$)/,

@@ -1,6 +1,7 @@
 import { getDatabase, onValue, query, ref } from 'firebase/database';
 import { getDoc, getFirestore, doc } from 'firebase/firestore';
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { Role } from '../ui';
 import styles from './index.css';
 
 function User({ user }) {
@@ -8,6 +9,10 @@ function User({ user }) {
         <div className={styles.status}>
             <img src={user.image} />
             <label>{ user.name }</label>
+            {
+                user.roles.includes('admin') &&
+                    <Role id="admin" />
+            }
         </div>
     );
 }
